@@ -1,0 +1,108 @@
+import React from "react";
+import { useAuth } from "../context/auth";
+import { useCart } from "../context/cart";
+import { Container, Row, Col, Card, Button, Table } from "react-bootstrap";
+import { FaRupeeSign } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+
+function Cartitems() {
+  const [auth] = useAuth();
+  const [cart, setCart] = useCart();
+
+  const totalprice = () => {
+    let total = 0;
+    cart.map((item) => (total += item.price));
+    return total.toFixed(2);
+  };
+
+  const removeitem = (cid) => {
+    let myCart = [...cart];
+    let index = myCart.findIndex((item) => item._id === cid);
+    myCart.splice(index, 1);
+    setCart(myCart);
+    localStorage.setItem("cart", JSON.stringify(myCart));
+  };
+
+  return (
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col md={10}>
+          <Card className="shadow-lg border-0">
+            <Card.Body className="p-4">
+              <h2 className="text-center mb-4 fw-bold text-primary">
+                {auth.token
+                  ? `Hello, ${auth.user.name}!`
+                  : "Please login to view your cart"}
+              </h2>
+
+              { 
+              auth.token?<>
+            
+            
+                  <Table responsive striped hover bordered className="align-middle">
+                    <thead className="table-dark">
+                      <tr className="text-center">
+                        <th>Product</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map((c, i) => (
+                        <tr key={i} className="text-center">
+                          <td>
+                            <img
+                              src={`https://ecombackend-1-12hp.onrender.com/product/product-photo/${c._id}`}
+                              alt={c.name}
+                              className="rounded shadow-sm"
+                              style={{ height: "80px", width: "80px", objectFit: "cover" }}
+                            />
+                          </td>
+                          <td className="fw-semibold">{c.name}</td>
+                          <td>
+                            <FaRupeeSign /> {c.price}
+                          </td>
+                          <td>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => removeitem(c._id)}
+                            >
+                              <MdDelete className="fs-5" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="fw-bold text-center">
+                        <td colSpan={2}>Total Amount</td>
+                        <td colSpan={2} className="text-success fs-5">
+                          <FaRupeeSign /> {totalprice()}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </Table>
+
+                  <div className="text-end mt-4">
+                    <Button variant="success" size="lg" className="px-4">
+                      Proceed to Checkout
+                    </Button>
+                  </div>
+               </>:null
+ } 
+                <div className="text-center py-5">
+                  <h5 className="text-muted">{cart.length>1 ? `You have ${cart.length} product in cart`:"Please add products in the cart"}</h5>
+                  
+                </div>
+              
+            </Card.Body>
+           </Card>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default Cartitems;

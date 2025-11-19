@@ -1,0 +1,37 @@
+import React, { useEffect, useState } from "react";
+import {useAuth} from '../context/auth'
+import { Outlet } from 'react-router-dom'
+
+function PrivateRoute() {
+  const [ ok,setOk ]=useState(false);
+  const [auth,setAuth]=useAuth()
+  useEffect(()=>
+  {
+    let authCheck=()=>
+    {
+      fetch("https://ecombackend-1-12hp.onrender.com/auth/userauth",{
+        headers:{
+          "authorization":auth?.token
+        }
+      }).then((res1)=>
+      {
+        res1.json().then((res2)=>{
+          console.log(res2)
+        if(res1.ok)
+        {
+          setOk(true)
+        }
+        else{
+          setOk(false)
+        }
+      })
+  })
+}
+if(auth?.token)
+  authCheck()
+},[auth?.token])
+
+  return ok?<Outlet/>:null
+}
+
+export default PrivateRoute;
